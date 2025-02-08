@@ -1,25 +1,29 @@
 const express = require("express");
 const path = require("path");
+const fetch = require("node-fetch"); // We will use node-fetch to fetch data from the GitHub API
 const cors = require("cors");
 
 const app = express();
-const port = process.env.PORT || 3000; // Use Render's assigned port (automatically set by Render)
+const port = process.env.PORT || 3000; // Ensure this works on Render (or your local dev)
 
 app.use(cors()); // Allow cross-origin requests
 
-// Serve static files from the "public" folder (e.g., index.html, CSS, JS)
+// Serve static files from the "public" folder
 app.use(express.static(path.join(__dirname, "public")));
 
-// Example world data
-const worlds = [
-    { id: 1, full: 76, name: "Fireplane", meta: { tag: "fire" } },
-    { id: 2, full: 6, name: "Waterscape", meta: { tag: "water" } },
-    { id: 3, full: 42, name: "Earthrealm", meta: { tag: "earth" } }
-];
+// Proxy API route to get the world list from the GitHub Pages API
+app.get("/worlds", async (req, res) => {
+    try {
+        // Fetch the world list from the GitHub Pages API
+        const response = await fetch("http://xpmuser.github.io/worlds-api/world-list");
+        const worldList = await response.json(); // Parse the response as JSON
 
-// API route to serve the world data
-app.get("/worlds", (req, res) => {
-    res.json(worlds); // Send the list of worlds as a JSON response
+        // Send the world list to the client
+        res.json(worldList);
+    } catch (error) {
+        console.error("Error fetching world list:", error);
+        res.status(500).json({ error: "Failed to fetch world list" });
+    }
 });
 
 // Root route to serve the homepage (index.html from public folder)
@@ -29,5 +33,5 @@ app.get("/", (req, res) => {
 
 // Start the server
 app.listen(port, () => {
-    console.log(`Server is running on https://localhost:${port}`);
+    console.log(`Server is running on http://localhost:${port}`);
 });
