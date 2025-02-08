@@ -1,9 +1,11 @@
 const express = require("express");
 const path = require("path");
-const app = express();
-const port = 3000;
+const cors = require("cors");
 
-// Serve static files from the public folder
+const app = express();
+const port = process.env.PORT || 3000; // Use Render's assigned port
+
+app.use(cors()); // Allow cross-origin requests
 app.use(express.static(path.join(__dirname, "public")));
 
 // Example world data
@@ -13,12 +15,10 @@ const worlds = [
     { id: 3, full: 42, name: "Earthrealm", meta: { tag: "earth" } }
 ];
 
-// API endpoint to get the world list
 app.get("/worlds", (req, res) => {
     res.json(worlds);
 });
 
-// Start the server
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}/`);
+    console.log(`Server running on port ${port}`);
 });
