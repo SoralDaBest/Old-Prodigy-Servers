@@ -1,24 +1,20 @@
 const express = require("express");
 const path = require("path");
-const fetch = require("node-fetch"); // We will use node-fetch to fetch data from the GitHub API
 const cors = require("cors");
 
 const app = express();
-const port = process.env.PORT || 3000; // Ensure this works on Render (or your local dev)
+const port = process.env.PORT || 3000;
 
 app.use(cors()); // Allow cross-origin requests
+app.use(express.static(path.join(__dirname, "public"))); // Serve static files
 
-// Serve static files from the "public" folder
-app.use(express.static(path.join(__dirname, "public")));
-
-// Proxy API route to get the world list from the GitHub Pages API
+// Proxy API route to get the world list from GitHub Pages
 app.get("/worlds", async (req, res) => {
     try {
-        // Fetch the world list from the GitHub Pages API
-        const response = await fetch("http://xpmuser.github.io/worlds-api/world-list");
-        const worldList = await response.json(); // Parse the response as JSON
+        const response = await fetch("https://xpmuser.github.io/worlds-api/world-list"); // Ensure HTTPS
+        if (!response.ok) throw new Error("Failed to fetch world list");
 
-        // Send the world list to the client
+        const worldList = await response.json();
         res.json(worldList);
     } catch (error) {
         console.error("Error fetching world list:", error);
@@ -26,7 +22,7 @@ app.get("/worlds", async (req, res) => {
     }
 });
 
-// Root route to serve the homepage (index.html from public folder)
+// Root route
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
 });
