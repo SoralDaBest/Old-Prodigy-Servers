@@ -1,10 +1,14 @@
 const express = require("express");
+const path = require("path");
 const cors = require("cors");
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3000; // Use Render's assigned port
 
-app.use(cors()); // Enable CORS
+app.use(cors()); // Allow cross-origin requests
+
+// Serve static files from the "public" folder
+app.use(express.static(path.join(__dirname, "public")));
 
 // Example world data
 const worlds = [
@@ -13,16 +17,17 @@ const worlds = [
     { id: 3, full: 42, name: "Earthrealm", meta: { tag: "earth" } }
 ];
 
-// Default route to show a welcome message
-app.get("/", (req, res) => {
-    res.send("Welcome to the Prodigy World Server! Use /worlds to get the list of worlds.");
-});
-
-// API endpoint to get the world list
+// Route to serve world data
 app.get("/worlds", (req, res) => {
     res.json(worlds);
 });
 
+// Route to serve the homepage
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// Start the server
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
